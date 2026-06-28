@@ -72,21 +72,45 @@
 
     /* Reglas específicas para la impresión del certificado */
     @media print {
-      body * {
-        visibility: hidden;
+      body {
+        background: none !important;
+        background-color: #FAFBFE !important;
       }
-      #print-area, #print-area * {
-        visibility: visible;
+      header, main, footer, #modal-docente, #section-landing, #section-dashboard {
+        display: none !important;
       }
-      #print-area {
+      #section-certificate-view {
+        display: block !important;
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
+        margin: 0;
+        padding: 0;
+        background: none !important;
+        background-color: #FAFBFE !important;
+      }
+      #print-area {
+        display: flex !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0 !important;
+        padding: 3rem !important;
+        box-shadow: none !important;
+        border: 8px solid #2D3C6E !important;
         background-color: #FAFBFE !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+      /* Ocultar botones de control en la impresión */
+      #section-certificate-view .flex.gap-4 {
+        display: none !important;
       }
       @page {
         size: A4 landscape;
@@ -547,6 +571,7 @@
         <!-- Footer de Acreditación Centrado -->
         <div class="text-center relative z-10 pb-4">
           <p class="text-[9px] font-mono text-brand-muted uppercase tracking-wider">Acreditación digital de trayecto académico validada por el Instituto Leibnitz</p>
+          <p class="text-[8px] font-mono text-brand-orange mt-1">CÓDIGO DE VERIFICACIÓN: <span id="cert-verification-id" class="font-bold">REG-LBT-XXXX-XXXX</span></p>
         </div>
 
       </div>
@@ -953,6 +978,7 @@
       // Cargar datos en diploma
       document.getElementById('cert-student-name').textContent = `${state.student.nombre} ${state.student.apellido}`;
       document.getElementById('cert-student-dni').textContent = formatDNI(state.student.dni);
+      document.getElementById('cert-verification-id').textContent = generateVerificationID(state.student.dni, state.student.email);
       
       // Formatear fecha actual
       const date = new Date();
@@ -981,6 +1007,21 @@
         return clean.replace(/(\d{1})(\d{3})(\d{3})/, "$1.$2.$3");
       }
       return dniStr;
+    }
+
+    // Genera un código ID único y determinista para validación del certificado
+    function generateVerificationID(dni, email) {
+      let hash = 0;
+      const cleanDni = dni.replace(/\D/g, "");
+      const cleanEmail = (email || "anon").trim().toLowerCase();
+      const str = cleanDni + cleanEmail + "leibnitz-time-management-2026";
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash; // Convertir a entero de 32 bits
+      }
+      const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+      return `REG-LBT-${cleanDni}-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
     }
 
 
@@ -1141,6 +1182,13 @@
       // Cargamos temporalmente los datos en la vista de impresión
       document.getElementById('cert-student-name').textContent = `${nombre} ${apellido}`;
       document.getElementById('cert-student-dni').textContent = formatDNI(dni);
+      
+      // Buscar el correo del alumno para generar el mismo hash único
+      let email = "";
+      const students = JSON.parse(localStorage.getItem('leibnitz_docente_students')) || [];
+      const found = students.find(s => s.dni === dni);
+      if (found) email = found.email;
+      document.getElementById('cert-verification-id').textContent = generateVerificationID(dni, email);
       
       const date = new Date();
       const meses = [
