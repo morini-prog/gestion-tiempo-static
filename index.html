@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plataforma de capacitación autogestionada sobre Gestión del Tiempo. Instituto Leibnitz, Villa María.">
+  <title>Instituto Leibnitz · Trayecto de Gestión del Tiempo</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Configuración de Tailwind para identidad visual Leibnitz -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#2D3C6E',
+              orange: '#F07200',
+              orangeSoft: 'rgba(240, 114, 0, 0.1)',
+              bg: '#FAFBFE',
+              text: '#1A1F2B',
+              muted: '#5E677E',
+              border: 'rgba(45, 60, 110, 0.12)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos base y de impresión del certificado -->
+  <style type="text/css">
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(45, 60, 110, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45, 60, 110, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      pointer-events: none;
+      mask-image: radial-gradient(circle at 50% 50%, black, transparent 95%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black, transparent 95%);
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(45, 60, 110, 0.2);
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(240, 114, 0, 0.4);
+    }
+
+    /* Reglas específicas para la impresión del certificado */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #FAFBFE !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-full font-sans text-brand-text antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 bg-brand-blue flex items-center justify-center text-white font-black text-lg select-none" style="clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);">L</div>
+          <div>
+            <a href="#" onclick="showSection('landing')" class="font-extrabold text-brand-blue tracking-tight text-sm sm:text-base block">
+              INSTITUTO LEIBNITZ
+            </a>
+            <span class="text-[9px] font-mono uppercase tracking-widest text-brand-muted block -mt-1">
+              Villa María · Nivel Superior
+            </span>
+          </div>
+        </div>
+        
+        <nav class="flex items-center gap-4">
+          <!-- Datos dinámicos del alumno actual -->
+          <div id="nav-student-info" class="hidden md:flex flex-col items-end text-right">
+            <span class="text-xs font-semibold text-brand-blue" id="nav-student-name"></span>
+            <span class="text-[9px] font-mono text-brand-muted uppercase" id="nav-student-level"></span>
+          </div>
+          <button id="btn-logout" onclick="logoutStudent()" class="hidden inline-flex items-center justify-center px-3.5 py-1.5 border border-brand-border text-xs font-mono font-medium text-brand-blue hover:text-white hover:bg-brand-blue transition-colors">
+            SALIR
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENEDOR PRINCIPAL ================= -->
+  <main class="flex-grow py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+
+    <!-- 1. SECCIÓN: LANDING PAGE Y REGISTRO -->
+    <section id="section-landing" class="block">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[calc(100vh-14rem)] py-6">
+        
+        <!-- Info del Curso -->
+        <div class="lg:col-span-7 flex flex-col justify-center space-y-6">
+          <div class="inline-flex self-start items-center bg-brand-blue text-white px-3 py-1 text-[10px] font-mono uppercase tracking-wider" style="clip-path: polygon(0% 0%, 100% 0%, 93% 100%, 0% 100%);">
+            [ FORMACIÓN CONTINUA AUTOGESTIONADA ]
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-brand-blue">
+            Gestión del Tiempo <br>
+            <span class="text-brand-orange">y Hábitos de Estudio</span>
+          </h1>
+          
+          <p class="text-base sm:text-lg text-brand-muted max-w-2xl leading-relaxed">
+            Optimiza tus procesos de aprendizaje, priorización y ejecución académica. Un programa adaptativo con 4 encuentros temáticos, 80 microactividades de autodiagnóstico y material audiovisual integrado para impulsar tu rendimiento en los niveles medio superior y superior.
+          </p>
+          
+          <!-- Metadatos rápidos -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-brand-border pt-6 max-w-xl">
+            <div class="bg-white p-4 border border-brand-border relative overflow-hidden group">
+              <div class="absolute left-0 top-0 h-full w-1 bg-brand-blue group-hover:bg-brand-orange transition-colors"></div>
+              <div class="text-[10px] font-mono text-brand-muted uppercase mb-1">Estructura</div>
+              <div class="text-xs font-bold text-brand-blue">4 Encuentros</div>
+            </div>
+            <div class="bg-white p-4 border border-brand-border relative overflow-hidden group">
+              <div class="absolute left-0 top-0 h-full w-1 bg-brand-blue group-hover:bg-brand-orange transition-colors"></div>
+              <div class="text-[10px] font-mono text-brand-muted uppercase mb-1">Actividades</div>
+              <div class="text-xs font-bold text-brand-blue">80 Checklists</div>
+            </div>
+            <div class="bg-white p-4 border border-brand-border relative overflow-hidden group">
+              <div class="absolute left-0 top-0 h-full w-1 bg-brand-blue group-hover:bg-brand-orange transition-colors"></div>
+              <div class="text-[10px] font-mono text-brand-muted uppercase mb-1">Videos</div>
+              <div class="text-xs font-bold text-brand-blue">12 Lecciones</div>
+            </div>
+            <div class="bg-white p-4 border border-brand-border relative overflow-hidden group">
+              <div class="absolute left-0 top-0 h-full w-1 bg-brand-blue group-hover:bg-brand-orange transition-colors"></div>
+              <div class="text-[10px] font-mono text-brand-muted uppercase mb-1">Acreditación</div>
+              <div class="text-xs font-bold text-brand-blue">Diploma Oficial</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Formulario de Inscripción -->
+        <div class="lg:col-span-5">
+          <div class="bg-white border border-brand-border p-8 shadow-xl shadow-slate-100 relative">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-brand-blue"></div>
+            
+            <div class="mb-6">
+              <h2 class="text-xl font-extrabold text-brand-blue">Ingreso al Trayecto</h2>
+              <p class="text-[10px] text-brand-muted mt-1 font-mono uppercase">
+                Complete el formulario obligatorio para iniciar o retomar
+              </p>
+            </div>
+            
+            <div id="register-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-mono text-center"></div>
+            
+            <form id="form-register" onsubmit="registerStudent(event)" class="space-y-4">
+              <div>
+                <label for="reg-nombre" class="block text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-1">Nombre</label>
+                <input type="text" id="reg-nombre" required
+                       class="w-full px-3.5 py-2 border border-brand-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none text-xs rounded-none transition-colors"
+                       placeholder="Ej. Sofía">
+              </div>
+              
+              <div>
+                <label for="reg-apellido" class="block text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-1">Apellido</label>
+                <input type="text" id="reg-apellido" required
+                       class="w-full px-3.5 py-2 border border-brand-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none text-xs rounded-none transition-colors"
+                       placeholder="Ej. Rossi">
+              </div>
+              
+              <div>
+                <label for="reg-dni" class="block text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-1">Documento (DNI)</label>
+                <input type="text" id="reg-dni" required
+                       class="w-full px-3.5 py-2 border border-brand-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none text-xs rounded-none font-mono transition-colors"
+                       placeholder="Ej. 42333444 (sin puntos)">
+              </div>
+              
+              <div>
+                <label for="reg-email" class="block text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-1">Correo Electrónico</label>
+                <input type="email" id="reg-email" required
+                       class="w-full px-3.5 py-2 border border-brand-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none text-xs rounded-none font-mono transition-colors"
+                       placeholder="correo@ejemplo.com">
+              </div>
+              
+              <div>
+                <label for="reg-nivel" class="block text-[10px] font-bold text-brand-blue uppercase tracking-wider mb-1">Nivel Académico</label>
+                <select id="reg-nivel" required
+                        class="w-full px-3.5 py-2 border border-brand-border focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none text-xs rounded-none bg-white transition-colors">
+                  <option value="" disabled selected>Seleccione su nivel...</option>
+                  <option value="Medio">Medio Superior (Secundario/Ciclo Técnico)</option>
+                  <option value="Superior">Nivel Superior (Terciario/Universitario)</option>
+                </select>
+              </div>
+              
+              <div class="pt-2">
+                <button type="submit"
+                        class="w-full bg-brand-blue text-white py-2.5 text-xs font-mono font-bold tracking-wider hover:bg-brand-orange transition-colors flex items-center justify-center gap-2"
+                        style="clip-path: polygon(0% 0%, 100% 0%, 97% 100%, 0% 100%);">
+                  INICIAR CAPACITACIÓN
+                  <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- 2. SECCIÓN: DASHBOARD DEL ESTUDIANTE -->
+    <section id="section-dashboard" class="hidden space-y-6">
+      
+      <!-- Fila de Progreso y Certificación -->
+      <div class="bg-white border border-brand-border p-6 shadow-md shadow-slate-100/50 flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div>
+          <span class="text-[9px] font-mono text-brand-orange uppercase font-bold tracking-wider">[ MI ESTADO DE AVANCE ]</span>
+          <h2 class="text-xl font-extrabold text-brand-blue mt-0.5" id="dash-student-welcome">Hola, Estudiante</h2>
+          <p class="text-xs text-brand-muted">Curso Autogestionado: Gestión del Tiempo e Intervención Pedagógica.</p>
+        </div>
+        
+        <!-- Barra de progreso -->
+        <div class="w-full lg:max-w-md flex-grow">
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-brand-muted"><span id="lbl-completadas">0</span> de 80 Actividades</span>
+            <span class="font-bold text-brand-blue" id="lbl-porcentaje">0%</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2.5 overflow-hidden">
+            <div id="bar-progreso" class="bg-brand-orange h-full w-0 transition-all duration-500 ease-out"></div>
+          </div>
+        </div>
+        
+        <!-- Tarjeta de Certificado -->
+        <div class="w-full lg:w-auto flex justify-center">
+          <button id="btn-certificar" disabled onclick="openCertificate()"
+                  class="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-200 text-slate-400 text-xs font-mono font-bold tracking-wider cursor-not-allowed transition-all shadow-lg shadow-slate-100">
+            <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            GENERAR CERTIFICADO
+          </button>
+        </div>
+      </div>
+
+      <!-- Pestañas de Encuentros (Navegación del Curso) -->
+      <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Columna Izquierda: Menú de Encuentros (Pestañas) -->
+        <div class="w-full lg:w-1/4 flex flex-col gap-2 shrink-0">
+          <div class="bg-white border border-brand-border p-4 shadow-sm mb-2">
+            <h3 class="text-xs font-mono text-brand-blue uppercase tracking-wider font-extrabold mb-1">
+              Estructura Temática
+            </h3>
+            <p class="text-[10px] text-brand-muted leading-tight">
+              Haga clic en las pestañas para navegar entre los 4 encuentros del trayecto formativo.
+            </p>
+          </div>
+          
+          <div class="flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-2 pb-2 lg:pb-0" id="tabs-navigation">
+            <button onclick="switchTab(1)" id="tab-btn-1" class="px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-blue border-l-4 border-l-brand-orange">
+              <span class="text-[9px] font-mono text-brand-orange">ENCUENTRO 1</span>
+              <span class="text-ellipsis overflow-hidden whitespace-nowrap block mt-0.5">Época de Exámenes</span>
+            </button>
+            <button onclick="switchTab(2)" id="tab-btn-2" class="px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-muted hover:bg-slate-50 border-l-4 border-l-transparent">
+              <span class="text-[9px] font-mono text-brand-muted">ENCUENTRO 2</span>
+              <span class="text-ellipsis overflow-hidden whitespace-nowrap block mt-0.5">Estudio Profundo</span>
+            </button>
+            <button onclick="switchTab(3)" id="tab-btn-3" class="px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-muted hover:bg-slate-50 border-l-4 border-l-transparent">
+              <span class="text-[9px] font-mono text-brand-muted">ENCUENTRO 3</span>
+              <span class="text-ellipsis overflow-hidden whitespace-nowrap block mt-0.5">Priorización Proyectos</span>
+            </button>
+            <button onclick="switchTab(4)" id="tab-btn-4" class="px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-muted hover:bg-slate-50 border-l-4 border-l-transparent">
+              <span class="text-[9px] font-mono text-brand-muted">ENCUENTRO 4</span>
+              <span class="text-ellipsis overflow-hidden whitespace-nowrap block mt-0.5">Vida Profesional</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Columna Derecha: Tarjetas de Actividades y Videos de Ampliación (3/4) -->
+        <div class="w-full lg:w-3/4 space-y-8">
+          
+          <!-- Encabezado del Encuentro Actual -->
+          <div class="bg-brand-blue text-white p-6 border border-brand-border shadow-sm">
+            <span class="text-[9px] font-mono text-brand-orange uppercase font-extrabold" id="encounter-badge">Encuentro 1</span>
+            <h3 class="text-lg font-black tracking-tight mt-0.5" id="encounter-title">Gestión del Tiempo en época de exámenes</h3>
+            <p class="text-xs text-slate-300 mt-1" id="encounter-desc">Técnicas de preparación de calendario, eliminación de distracciones y simulación de exámenes reales.</p>
+          </div>
+          
+          <!-- Grid de las 20 Tarjetas de Actividades -->
+          <div>
+            <div class="flex items-center justify-between border-b border-brand-border pb-2 mb-4">
+              <h4 class="text-xs font-mono font-bold text-brand-blue uppercase tracking-wider">Actividades de Diagnóstico y Planificación</h4>
+              <span class="text-[10px] font-mono text-brand-muted" id="encounter-counter">Completadas: 0 / 20</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="cards-container">
+              <!-- Cargado dinámicamente con JS -->
+            </div>
+          </div>
+          
+          <!-- Material de Ampliación (3 Videos de < 4 min) -->
+          <div class="bg-white border border-brand-border p-6 shadow-sm">
+            <div class="border-b border-brand-border pb-2 mb-6">
+              <span class="text-[9px] font-mono text-brand-orange uppercase font-bold tracking-wider">[ PROFUNDIZAR CONTENIDO ]</span>
+              <h4 class="text-xs font-mono font-bold text-brand-blue uppercase tracking-wider mt-0.5">Material de Ampliación</h4>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="videos-container">
+              <!-- Cargado dinámicamente con JS -->
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-brand-blue text-white py-10 border-t border-brand-border mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex flex-col items-center md:items-start gap-1">
+          <div class="font-extrabold tracking-tight">INSTITUTO LEIBNITZ</div>
+          <div class="text-xs font-mono text-slate-300">COMPROMISO DE MEJORA INSTITUCIONAL</div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs font-mono text-slate-300">
+          <a href="mailto:secretaria@leibnitz.edu.ar" class="hover:text-brand-orange transition-colors">secretaria@leibnitz.edu.ar</a>
+          <a href="tel:+5493534069816" class="hover:text-brand-orange transition-colors">+54 9 3534 06-9816</a>
+          <span class="opacity-80">Rawson 1899 · Villa María · Córdoba</span>
+        </div>
+      </div>
+      <div class="border-t border-slate-700 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-mono text-slate-400">
+        <span>© 2026 INSTITUTO LEIBNITZ. TODOS LOS DERECHOS RESERVADOS.</span>
+        <div class="flex gap-4">
+          <a href="#" onclick="openDocenteModal(event)" class="hover:text-brand-orange underline tracking-wider select-none font-semibold">
+            ACCESO DOCENTE
+          </a>
+          <span>SPA V_3.0</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL DOCENTE (Clave 2228) ================= -->
+  <div id="modal-docente" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- Contenido del modal -->
+    <div class="bg-white w-full max-w-4xl border border-brand-border shadow-2xl relative flex flex-col max-h-[85vh] animate-in fade-in duration-200">
+      
+      <!-- Barra superior decorativa -->
+      <div class="h-[4px] bg-brand-orange w-full"></div>
+      
+      <!-- Formulario de Clave (si no está autenticado) -->
+      <div id="docente-auth-box" class="p-8 max-w-md mx-auto text-center w-full">
+        <div class="mx-auto h-12 w-12 bg-brand-orangeSoft text-brand-orange flex items-center justify-center rounded-full mb-3">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-extrabold text-brand-blue">Acceso Restringido</h3>
+        <p class="text-xs text-brand-muted font-mono uppercase mt-0.5">Ingrese clave de validación docente</p>
+        
+        <div id="docente-auth-error" class="hidden mt-3 p-2 bg-red-50 border border-red-200 text-red-700 text-xs font-mono"></div>
+        
+        <form onsubmit="validateDocenteKey(event)" class="mt-6 space-y-4">
+          <input type="password" id="docente-key" required
+                 class="w-full px-4 py-2 text-center text-lg font-mono tracking-widest border border-brand-border outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange rounded-none"
+                 placeholder="••••" maxlength="4">
+          <div class="flex gap-3">
+            <button type="button" onclick="closeDocenteModal()" class="w-1/2 py-2 border border-brand-border text-xs font-mono font-bold text-brand-blue hover:bg-slate-50 transition-colors">
+              CANCELAR
+            </button>
+            <button type="submit" class="w-1/2 py-2 bg-brand-blue text-white text-xs font-mono font-bold hover:bg-brand-orange transition-colors">
+              VALIDAR
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Panel de Reportes (si ya está autenticado) -->
+      <div id="docente-report-box" class="hidden flex flex-col max-h-[85vh] w-full">
+        
+        <!-- Header del Modal -->
+        <div class="px-6 py-4 border-b border-brand-border flex justify-between items-center bg-slate-50">
+          <div>
+            <span class="text-[9px] font-mono text-brand-orange uppercase font-bold tracking-wider">[ MÓDULO DE SEGUIMIENTO DOCENTE ]</span>
+            <h3 class="text-base font-extrabold text-brand-blue leading-tight mt-0.5">Reportes de Progreso de Estudiantes</h3>
+          </div>
+          <button onclick="closeDocenteModal()" class="text-slate-400 hover:text-brand-orange transition-colors p-1">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filtros y Controles -->
+        <div class="p-6 border-b border-brand-border bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-stretch">
+          <!-- Buscador -->
+          <div class="relative flex-grow max-w-md">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg class="h-4 w-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input type="text" id="docente-search" oninput="filterDocenteTable()"
+                   class="w-full pl-9 pr-4 py-2 border border-brand-border outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-xs rounded-none"
+                   placeholder="Buscar por Nombre, DNI o Correo...">
+          </div>
+          
+          <!-- Filtro de Nivel -->
+          <div class="flex gap-3">
+            <select id="docente-filter-level" onchange="filterDocenteTable()"
+                    class="px-4 py-2 border border-brand-border outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-xs rounded-none bg-white">
+              <option value="todos">Todos los Niveles</option>
+              <option value="Medio">Medio Superior</option>
+              <option value="Superior">Nivel Superior</option>
+            </select>
+            
+            <button onclick="clearDocenteSession()" class="px-3.5 py-2 border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 text-xs font-mono font-bold transition-colors">
+              CERRAR PANEL
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Estudiantes -->
+        <div class="p-6 overflow-y-auto custom-scroll flex-grow">
+          <div class="border border-brand-border overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-brand-blue text-white text-[9px] font-mono uppercase tracking-wider">
+                  <th class="px-5 py-3 border-b border-brand-border">Estudiante</th>
+                  <th class="px-5 py-3 border-b border-brand-border font-mono text-center">DNI</th>
+                  <th class="px-5 py-3 border-b border-brand-border">Correo</th>
+                  <th class="px-5 py-3 border-b border-brand-border text-center">Nivel</th>
+                  <th class="px-5 py-3 border-b border-brand-border text-center">Progreso</th>
+                  <th class="px-5 py-3 border-b border-brand-border text-center">Estado</th>
+                  <th class="px-5 py-3 border-b border-brand-border text-center">Certificado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-brand-border" id="docente-table-body">
+                <!-- Rellenado dinámicamente con JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Footer del Modal -->
+        <div class="px-6 py-4 border-t border-brand-border bg-slate-50 flex justify-between items-center text-xs font-mono text-brand-muted">
+          <span>Estudiantes registrados: <strong class="text-brand-blue" id="docente-total-students">0</strong></span>
+          <span>Instituto Leibnitz · Nivel Superior</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= VISUALIZADOR DE CERTIFICADO (Para Imprimir) ================= -->
+  <div id="section-certificate-view" class="hidden fixed inset-0 z-50 bg-slate-900 overflow-y-auto flex items-center justify-center p-4">
+    <div class="flex flex-col items-center gap-6 max-w-5xl w-full">
+      
+      <!-- Contenedor del Diploma A4 Horizontal -->
+      <div id="print-area" class="bg-[#FAFBFE] aspect-[1.414/1] w-full max-w-4xl p-12 border-[8px] border-brand-blue shadow-2xl relative flex flex-col justify-between overflow-hidden text-brand-text select-none">
+        
+        <!-- Borde naranja decorativo fino interno -->
+        <div class="absolute inset-[8px] border-2 border-brand-orange pointer-events-none"></div>
+        
+        <!-- Cuadrícula sutil de fondo en el diploma -->
+        <div class="absolute inset-[10px] pointer-events-none" style="background-image: linear-gradient(rgba(45, 60, 110, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(45, 60, 110, 0.03) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at 50% 50%, black, transparent 95%);"></div>
+        
+        <!-- Esquina Superior Izquierda Decorativa (Azul y Naranja) -->
+        <div class="absolute top-0 left-0 w-36 h-36 bg-brand-blue origin-top-left -rotate-45 transform translate-y-[-70px] translate-x-[-70px] border-b-4 border-brand-orange pointer-events-none"></div>
+        
+        <!-- Esquina Inferior Derecha Decorativa (Naranja y Azul) -->
+        <div class="absolute bottom-0 right-0 w-36 h-36 bg-brand-orange origin-bottom-right rotate-45 transform translate-y-[70px] translate-x-[70px] border-t-4 border-brand-blue pointer-events-none"></div>
+
+        <!-- Encabezado Académico -->
+        <div class="text-center relative z-10">
+          <h3 class="text-2xl font-black text-brand-blue tracking-tight">INSTITUTO LEIBNITZ</h3>
+          <p class="text-[9px] font-mono text-brand-muted tracking-widest -mt-1 uppercase">Villa María · Nivel Superior · República Argentina</p>
+          <div class="h-[2px] bg-brand-orange w-32 mx-auto mt-2"></div>
+        </div>
+
+        <!-- Título del Diploma -->
+        <div class="text-center my-4 relative z-10">
+          <h1 class="text-4xl font-extrabold tracking-tight text-brand-blue leading-none">CERTIFICADO DE APROBACIÓN</h1>
+          <p class="text-xs text-brand-muted mt-2 font-light">Se otorga el presente diploma de acreditación a:</p>
+        </div>
+
+        <!-- Nombre Completo del Alumno -->
+        <div class="text-center relative z-10">
+          <h2 class="text-3xl font-extrabold text-brand-orange tracking-tight uppercase" id="cert-student-name">JUAN SEBASTIÁN PÉREZ</h2>
+          <p class="text-xs text-brand-text font-mono mt-1">D.N.I. N°: <span id="cert-student-dni">12.345.678</span></p>
+        </div>
+
+        <!-- Texto Descriptivo del Trayecto -->
+        <div class="text-center max-w-xl mx-auto px-4 relative z-10">
+          <p class="text-xs text-brand-text leading-relaxed">
+            Por haber completado y aprobado satisfactoriamente el trayecto pedagógico situado del 
+            <strong class="text-brand-blue block text-sm mt-1">CURSO DE GESTIÓN DEL TIEMPO Y PLANIFICACIÓN ACADÉMICA</strong>
+            Desarrollado bajo modalidad autogestionada (4 encuentros temáticos, 80 microactividades evaluativas y 12 videos prácticos de ampliación).
+          </p>
+        </div>
+
+        <!-- Fecha y Lugar de Emisión -->
+        <div class="text-center text-xs text-brand-muted relative z-10 font-mono">
+          Dado en la ciudad de Villa María, Provincia de Córdoba, el <span id="cert-date" class="font-bold">28 de junio de 2026</span>.
+        </div>
+
+        <!-- Firmas y Sello de Validación Digital -->
+        <div class="flex justify-between items-end px-12 relative z-10">
+          <!-- Firma 1 -->
+          <div class="text-center w-40 relative">
+            <!-- Garabato de firma ficticia 1 -->
+            <svg class="h-10 w-full text-slate-700 mx-auto -mb-1 opacity-80" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 25 C30 10, 40 35, 60 15 C70 5, 80 20, 90 10 M30 18 C50 2, 60 38, 75 22" />
+            </svg>
+            <div class="border-t border-brand-muted/40 mt-1"></div>
+            <strong class="text-[10px] text-brand-blue block mt-1 font-bold">Prof. Stella M. Pérez</strong>
+            <span class="text-[8px] text-brand-muted block uppercase font-mono">Coordinadora Académica</span>
+          </div>
+
+          <!-- Sello Digital Centrado -->
+          <div class="h-20 w-20 border-2 border-brand-blue rounded-full flex flex-col items-center justify-center bg-brand-blue/5 relative -mb-3">
+            <div class="absolute inset-[3px] border border-brand-orange/40 rounded-full border-dashed"></div>
+            <span class="text-[7px] font-bold text-brand-blue uppercase">Instituto</span>
+            <strong class="text-[8px] font-black text-brand-orange uppercase leading-none">Leibnitz</strong>
+            <span class="text-[6px] font-mono text-brand-blue mt-0.5">V. MARÍA</span>
+            <!-- Estrellitas en el sello -->
+            <span class="absolute left-1.5 text-[8px] text-brand-blue">★</span>
+            <span class="absolute right-1.5 text-[8px] text-brand-blue">★</span>
+          </div>
+
+          <!-- Firma 2 -->
+          <div class="text-center w-40 relative">
+            <!-- Garabato de firma ficticia 2 -->
+            <svg class="h-10 w-full text-slate-800 mx-auto -mb-1 opacity-80" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M15 28 C25 5, 45 35, 55 12 C65 25, 75 10, 85 20 M20 22 C40 38, 50 2, 70 18" />
+            </svg>
+            <div class="border-t border-brand-muted/40 mt-1"></div>
+            <strong class="text-[10px] text-brand-blue block mt-1 font-bold">Ing. Marcelo Morini</strong>
+            <span class="text-[8px] text-brand-muted block uppercase font-mono">Director General</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Controles del Certificado -->
+      <div class="flex gap-4">
+        <button onclick="closeCertificate()" class="px-5 py-2.5 border border-white text-white text-xs font-mono font-bold hover:bg-white/10 transition-colors">
+          VOLVER AL PANEL
+        </button>
+        <button onclick="window.print()" class="px-5 py-2.5 bg-brand-orange text-white text-xs font-mono font-bold hover:bg-brand-orange/90 transition-colors flex items-center gap-2">
+          <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          IMPRIMIR / PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= COMPORTAMIENTO Y LÓGICA JAVASCRIPT ================= -->
+  <script>
+    // Datos completos de la estructura de videos (Material de Ampliación)
+    // 3 videos responsivos de YouTube de < 4 min por cada encuentro
+    const VIDEOS_AMPLIACION = {
+      1: [
+        { id: 1, titulo: "Técnica Pomodoro en 2 Minutos", youtubeId: "TZbI-Qz-j9E", duracion: "2:10" },
+        { id: 2, titulo: "Cómo vencer la Procrastinación", youtubeId: "T70N9vR9m6Y", duracion: "3:40" },
+        { id: 3, titulo: "El Ciclo Circadiano de la Energía", youtubeId: "fDbxGM4y1o4", duracion: "3:15" }
+      ],
+      2: [
+        { id: 4, titulo: "Estudio Pasivo vs. Estudio Activo", youtubeId: "xTszYVpYmgo", duracion: "3:05" },
+        { id: 5, titulo: "Recuperación Activa (Active Recall)", youtubeId: "fDbxGM4y1o4", duracion: "2:50" },
+        { id: 6, titulo: "La Técnica Feynman para Entender Mejor", youtubeId: "t70N9vR9m6Y", duracion: "3:20" }
+      ],
+      3: [
+        { id: 7, titulo: "La Matriz de Eisenhower de Prioridades", youtubeId: "3W90V6-W640", duracion: "3:30" },
+        { id: 8, titulo: "Principio de Pareto (80/20) en el Estudio", youtubeId: "nJj-UeR66zM", duracion: "2:45" },
+        { id: 9, titulo: "Kanban Personal para Estudiantes", youtubeId: "3rL1Z-z4kko", duracion: "3:55" }
+      ],
+      4: [
+        { id: 10, titulo: "Time Blocking: Planifica como un CEO", youtubeId: "rFmNl-r4Kko", duracion: "3:10" },
+        { id: 11, titulo: "Hábitos Productivos a largo plazo", youtubeId: "z97dM-L6mzo", duracion: "2:30" },
+        { id: 12, titulo: "Prevenir el Síndrome de Burnout Docente", youtubeId: "vFmNl-t4pko", duracion: "3:45" }
+      ]
+    };
+
+    // Datos detallados de las 20 Actividades por Encuentro (Total: 80)
+    const ACTIVIDADES = {
+      1: [
+        "Identificar todas las fechas de exámenes parciales del cuatrimestre.",
+        "Listar el temario y las unidades requeridas para cada materia.",
+        "Establecer prioridades de estudio según la complejidad del examen.",
+        "Crear un cronograma de estudio asignando horas específicas a cada tema.",
+        "Diseñar un espacio de estudio libre de ruidos y notificaciones.",
+        "Establecer bloques de estudio enfocados de 25 minutos (Pomodoro).",
+        "Implementar pausas activas obligatorias de 5 minutos entre bloques.",
+        "Crear resúmenes conceptuales visuales (mapas mentales o diagramas).",
+        "Diseñar tarjetas de autoevaluación (flashcards) para los conceptos clave.",
+        "Escribir definiciones breves con palabras propias para fijar conceptos.",
+        "Planificar comidas ligeras e hidratación durante las jornadas de estudio.",
+        "Establecer un límite de estudio nocturno para respetar el sueño de 8 horas.",
+        "Realizar un repaso colaborativo rápido de 15 minutos con compañeros.",
+        "Hacer una simulación de examen real cronometrada sin ver apuntes.",
+        "Revisar y corregir el simulacro identificando los errores puntuales.",
+        "Organizar con anticipación el material físico/digital necesario para el examen.",
+        "Hacer un repaso general rápido de 10 minutos la mañana del examen.",
+        "Llegar al espacio de examen con 15 minutos de anticipación para calmar el foco.",
+        "Leer todas las consignas del examen detenidamente antes de comenzar a escribir.",
+        "Analizar el examen una vez devuelto para corregir y documentar errores."
+      ],
+      2: [
+        "Diferenciar subrayar pasivamente de escribir notas explicativas.",
+        "Crear preguntas disparadoras al margen de cada lectura.",
+        "Resolver un ejercicio o problema práctico antes de ver la solución guía.",
+        "Explicar un concepto difícil a un compañero simulado (Feynman).",
+        "Identificar los 3 conceptos más complejos de la unidad y reescribirlos.",
+        "Asociar conceptos abstractos con ejemplos concretos de la vida real.",
+        "Realizar una sesión de lectura estructurada con toma de notas diferida.",
+        "Crear resúmenes a libro cerrado para medir retención inmediata.",
+        "Ejercitar recuperación activa respondiendo cuestionarios sin soporte.",
+        "Intercalar bloques de materias diferentes en una misma sesión.",
+        "Evitar la relectura simple del material y sustituirla por autoevaluación.",
+        "Identificar vacíos en el aprendizaje y buscar aclarar las dudas.",
+        "Consultar con profesores o tutores sobre temas confusos detectados.",
+        "Crear analogías creativas para memorizar fórmulas o procesos largos.",
+        "Estudiar con periodos de descanso espaciados a lo largo de la semana.",
+        "Evitar sesiones maratónicas de estudio nocturno sin descanso previo.",
+        "Evaluar la comprensión explicando el tema en menos de 1 minuto.",
+        "Escribir una crítica o síntesis reflexiva de la lectura teórica.",
+        "Construir un glosario de términos técnicos con tus propias palabras.",
+        "Revisar el material estudiado 24 horas después para asentar la memoria."
+      ],
+      3: [
+        "Listar todos los proyectos, tareas y entregas activas del mes.",
+        "Dividir cada gran entrega académica en al menos 5 subtareas específicas.",
+        "Estimar el tiempo requerido para cada subtarea de manera conservadora.",
+        "Clasificar tareas usando la Matriz de Eisenhower (Urgente/Importante).",
+        "Identificar y delegar tareas de trabajos grupales de forma equitativa.",
+        "Identificar el entregable crítico que genera el 80% del valor del trabajo.",
+        "Establecer hitos de entrega intermedios para prevenir retrasos finales.",
+        "Crear un tablero Kanban digital o físico con columnas: Pendiente, En Proceso, Hecho.",
+        "Limitar las tareas 'En Proceso' a un máximo de 3 a la vez.",
+        "Definir el 'Criterio de Aceptación' para dar por concluido un proyecto.",
+        "Hacer una revisión de 5 minutos al inicio del día para priorizar tareas.",
+        "Asignar buffers de tiempo para imprevistos en el cronograma semanal.",
+        "Organizar las carpetas y archivos digitales de cada proyecto para rápido acceso.",
+        "Revisar referencias bibliográficas requeridas antes de comenzar la redacción.",
+        "Escribir un borrador rápido sin autocensurarse para evitar el bloqueo.",
+        "Revisar y corregir la redacción y ortografía del borrador al día siguiente.",
+        "Hacer una validación de formato según las normas requeridas (ej. APA).",
+        "Presentar avances intermedios a docentes o compañeros para feedback.",
+        "Asegurar la carga exitosa de respaldos digitales (nube o almacenamiento local).",
+        "Efectuar la entrega formal 24 horas antes del límite oficial."
+      ],
+      4: [
+        "Definir los 3 objetivos principales para el desarrollo de carrera anual.",
+        "Crear una rutina matutina de 15 minutos para organizar el día laboral.",
+        "Limitar el chequeo del correo electrónico a 3 franjas horarias específicas.",
+        "Implementar la regla de los 2 minutos: resolver de inmediato si toma menos de eso.",
+        "Aprender a decir 'no' asertivamente a reuniones o tareas sin agenda clara.",
+        "Bloquear en la agenda bloques de 'Trabajo Profundo' (Deep Work).",
+        "Establecer límites horarios estrictos entre vida laboral y familiar.",
+        "Diseñar plantillas para correos o documentos repetitivos frecuentes.",
+        "Automatizar respaldos de información clave de forma automática.",
+        "Configurar notificaciones del móvil reduciéndolas a las estrictamente esenciales.",
+        "Efectuar pausas físicas de estiramiento cada 60 minutos de trabajo continuo.",
+        "Gestionar la energía y no solo el tiempo (descanso, agua, respiración).",
+        "Planificar las tareas principales del día siguiente la noche anterior.",
+        "Mantener el espacio de trabajo físico y digital ordenado y limpio.",
+        "Llevar un registro de hábitos productivos diarios para auto-monitoreo.",
+        "Desarrollar habilidades de comunicación escrita para correos profesionales.",
+        "Aprender a utilizar atajos de teclado esenciales para software de oficina.",
+        "Realizar una revisión de control semanal de 30 minutos los viernes.",
+        "Anotar aprendizajes, éxitos y áreas de mejora al finalizar cada mes.",
+        "Mantener actualizado el currículum vitae y portafolio de trabajo profesional."
+      ]
+    };
+
+    // Estado global de la aplicación (SPA)
+    let state = {
+      student: null, // Objeto: { nombre, apellido, dni, email, nivel }
+      completedAct: [], // Array de strings del tipo "modulo_id-actividad_idx" (ej: "1-0", "1-19")
+      activeTab: 1
+    };
+
+    // Estudiantes simulados de muestra para el panel docente
+    const SAMPLE_STUDENTS = [
+      { nombre: "Julieta", apellido: "Martínez", dni: "41222333", email: "julieta@leibnitz.edu.ar", nivel: "Superior", completadas: ["1-0", "1-1", "1-2", "1-3", "2-0", "2-1", "2-2", "2-3", "3-0", "3-1", "4-0", "4-1"], porcentaje: 15 },
+      { nombre: "Lautaro", apellido: "Sánchez", dni: "43999888", email: "lautaro@leibnitz.edu.ar", nivel: "Medio", completadas: Array.from({length: 45}, (_, i) => `${Math.floor(i/20)+1}-${i%20}`), porcentaje: 56 },
+      { nombre: "Mateo", apellido: "Benítez", dni: "42000111", email: "mateo@leibnitz.edu.ar", nivel: "Superior", completadas: Array.from({length: 80}, (_, i) => `${Math.floor(i/20)+1}-${i%20}`), porcentaje: 100 },
+      { nombre: "Valentina", apellido: "Castro", dni: "44111222", email: "valentina@leibnitz.edu.ar", nivel: "Medio", completadas: ["1-0", "1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "1-13", "1-14", "1-15", "1-16", "1-17", "1-18", "1-19"], porcentaje: 25 },
+      { nombre: "Agustín", apellido: "Fernández", dni: "39888777", email: "agustin@leibnitz.edu.ar", nivel: "Superior", completadas: Array.from({length: 72}, (_, i) => `${Math.floor(i/20)+1}-${i%20}`), porcentaje: 90 }
+    ];
+
+    // Inicialización al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Inicializar estudiantes simulados en localStorage si no existen
+      initSampleStudents();
+      
+      // 2. Verificar si ya hay un estudiante activo en sesión
+      loadSession();
+    });
+
+    // Carga la sesión desde localStorage
+    function loadSession() {
+      const storedStudent = localStorage.getItem('leibnitz_active_student');
+      if (storedStudent) {
+        state.student = JSON.parse(storedStudent);
+        
+        // Cargar progreso del estudiante actual
+        const storedProgress = localStorage.getItem(`leibnitz_progress_${state.student.email}`);
+        state.completedAct = storedProgress ? JSON.parse(storedProgress) : [];
+        
+        // Actualizar interfaz
+        updateNavInfo();
+        updateDashboard();
+        showSection('dashboard');
+      } else {
+        showSection('landing');
+      }
+    }
+
+    // Inicializa la base de datos simulada en localStorage
+    function initSampleStudents() {
+      if (!localStorage.getItem('leibnitz_docente_students')) {
+        localStorage.setItem('leibnitz_docente_students', JSON.stringify(SAMPLE_STUDENTS));
+      }
+    }
+
+    // Registra o loguea un estudiante en localStorage
+    function registerStudent(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('register-error');
+      errBox.classList.add('hidden');
+      errBox.textContent = '';
+      
+      const nombre = document.getElementById('reg-nombre').value.trim();
+      const apellido = document.getElementById('reg-apellido').value.trim();
+      const dni = document.getElementById('reg-dni').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const nivel = document.getElementById('reg-nivel').value;
+      
+      if (!nombre || !apellido || !dni || !email || !nivel) {
+        errBox.textContent = "Todos los campos son obligatorios.";
+        errBox.classList.remove('hidden');
+        return;
+      }
+      
+      if (!/^\d+$/.test(dni.replace(/[\s\.-]/g, ''))) {
+        errBox.textContent = "El DNI debe contener únicamente números.";
+        errBox.classList.remove('hidden');
+        return;
+      }
+      
+      // Crear objeto del estudiante
+      const currentStudent = { nombre, apellido, dni, email, nivel };
+      
+      // Persistir estudiante activo
+      localStorage.setItem('leibnitz_active_student', JSON.stringify(currentStudent));
+      state.student = currentStudent;
+      
+      // Cargar progreso previo si existía el correo registrado
+      const storedProgress = localStorage.getItem(`leibnitz_progress_${email}`);
+      state.completedAct = storedProgress ? JSON.parse(storedProgress) : [];
+      
+      // Agregar/Actualizar al listado global del docente
+      saveOrUpdateDocenteList(currentStudent, state.completedAct.length);
+      
+      // Actualizar interfaz y redirigir
+      updateNavInfo();
+      updateDashboard();
+      showSection('dashboard');
+      
+      // Limpiar formulario
+      document.getElementById('form-register').reset();
+    }
+
+    // Guarda o actualiza al estudiante en la base de datos simulada de reportes docentes
+    function saveOrUpdateDocenteList(studentObj, completadasCount) {
+      let list = JSON.parse(localStorage.getItem('leibnitz_docente_students')) || [];
+      const idx = list.findIndex(s => s.email.toLowerCase() === studentObj.email.toLowerCase());
+      
+      const pct = Math.floor((completadasCount / 80) * 100);
+      
+      const entry = {
+        nombre: studentObj.nombre,
+        apellido: studentObj.apellido,
+        dni: studentObj.dni,
+        email: studentObj.email,
+        nivel: studentObj.nivel,
+        completadasCount: completadasCount,
+        porcentaje: pct
+      };
+      
+      if (idx >= 0) {
+        list[idx] = entry;
+      } else {
+        list.push(entry);
+      }
+      localStorage.setItem('leibnitz_docente_students', JSON.stringify(list));
+    }
+
+    // Desconecta la sesión del alumno
+    function logoutStudent() {
+      localStorage.removeItem('leibnitz_active_student');
+      state.student = null;
+      state.completedAct = [];
+      
+      // Actualizar Navbar
+      document.getElementById('nav-student-info').classList.add('hidden');
+      document.getElementById('btn-logout').classList.add('hidden');
+      
+      showSection('landing');
+    }
+
+    // Cambia la visualización de la sección (Landing vs. Dashboard)
+    function showSection(sectionId) {
+      document.getElementById('section-landing').classList.add('hidden');
+      document.getElementById('section-dashboard').classList.add('hidden');
+      
+      if (sectionId === 'landing') {
+        document.getElementById('section-landing').classList.remove('hidden');
+      } else if (sectionId === 'dashboard') {
+        document.getElementById('section-dashboard').classList.remove('hidden');
+      }
+    }
+
+    // Actualiza la barra de navegación del header con datos del estudiante
+    function updateNavInfo() {
+      if (state.student) {
+        document.getElementById('nav-student-name').textContent = `${state.student.nombre} ${state.student.apellido}`;
+        document.getElementById('nav-student-level').textContent = `Nivel: ${state.student.nivel}`;
+        document.getElementById('nav-student-info').classList.remove('hidden');
+        document.getElementById('btn-logout').classList.remove('hidden');
+      }
+    }
+
+    // Cambia de pestaña en el dashboard (Encuentros)
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      
+      // Actualizar estilos de los botones de navegación lateral
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab-btn-${i}`);
+        const spanPrefix = btn.querySelector('span:first-child');
+        
+        if (i === tabId) {
+          btn.className = "px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-blue border-l-4 border-l-brand-orange";
+          spanPrefix.className = "text-[9px] font-mono text-brand-orange";
+        } else {
+          btn.className = "px-4 py-3 text-left shrink-0 transition-all border border-brand-border font-extrabold text-xs flex flex-col justify-center bg-white text-brand-muted hover:bg-slate-50 border-l-4 border-l-transparent";
+          spanPrefix.className = "text-[9px] font-mono text-brand-muted";
+        }
+      }
+      
+      // Actualizar encabezados del módulo actual
+      updateEncounterHeaders(tabId);
+      
+      // Renderizar las actividades y videos del encuentro actual
+      renderEncounterActivities(tabId);
+      renderEncounterVideos(tabId);
+    }
+
+    // Actualiza los datos textuales de cabecera del encuentro actual
+    function updateEncounterHeaders(tabId) {
+      const titles = {
+        1: { badge: "Encuentro 1", title: "Gestión en época de exámenes", desc: "Técnicas de preparación de calendario, eliminación de distracciones y simulación de exámenes reales." },
+        2: { badge: "Encuentro 2", title: "Estudio profundo vs. pasivo", desc: "Diferenciar la recuperación activa de la relectura simple e implementar metodologías de comprensión activa." },
+        3: { badge: "Encuentro 3", title: "Priorización de trabajos y proyectos", desc: "Desglosar grandes entregas en subtareas estimando tiempos realistas mediante tableros y prioridades." },
+        4: { badge: "Encuentro 4", title: "Productividad para la vida profesional", desc: "Establecer sistemas de hábitos estables y estructurar rutinas para evitar el burnout laboral." }
+      };
+      
+      document.getElementById('encounter-badge').textContent = titles[tabId].badge;
+      document.getElementById('encounter-title').textContent = titles[tabId].title;
+      document.getElementById('encounter-desc').textContent = titles[tabId].desc;
+    }
+
+    // Renderiza las 20 tarjetas de actividades para el encuentro actual
+    function renderEncounterActivities(tabId) {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+      
+      const actList = ACTIVIDADES[tabId];
+      let completedInEncounter = 0;
+      
+      actList.forEach((text, index) => {
+        const key = `${tabId}-${index}`;
+        const isCompleted = state.completedAct.includes(key);
+        if (isCompleted) completedInEncounter++;
+        
+        const card = document.createElement('div');
+        card.className = `p-4 border transition-all duration-300 flex items-start gap-3 select-none ${isCompleted ? 'bg-green-50/40 border-green-200' : 'bg-white border-brand-border hover:border-brand-blue/30'}`;
+        
+        card.innerHTML = `
+          <div class="flex items-center h-5 shrink-0 mt-0.5">
+            <input id="act-chk-${key}" type="checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleActivity('${key}')"
+                   class="h-4.5 w-4.5 rounded border-slate-300 text-brand-orange focus:ring-brand-orange accent-brand-orange cursor-pointer">
+          </div>
+          <label for="act-chk-${key}" class="text-xs text-slate-700 leading-relaxed cursor-pointer font-medium flex-grow">
+            <span class="font-mono text-[10px] text-brand-muted mr-1">${tabId}.${index+1}</span>
+            ${text}
+          </label>
+        `;
+        container.appendChild(card);
+      });
+      
+      document.getElementById('encounter-counter').textContent = `Completadas: ${completedInEncounter} / 20`;
+    }
+
+    // Renderiza los 3 videos de ampliación para el encuentro actual
+    function renderEncounterVideos(tabId) {
+      const container = document.getElementById('videos-container');
+      container.innerHTML = '';
+      
+      const vids = VIDEOS_AMPLIACION[tabId];
+      vids.forEach(v => {
+        const item = document.createElement('div');
+        item.className = "flex flex-col gap-2";
+        
+        item.innerHTML = `
+          <!-- Reproductor responsivo -->
+          <div class="aspect-video w-full bg-slate-900 border border-brand-border relative overflow-hidden group shadow-sm">
+            <iframe class="w-full h-full border-0 absolute inset-0"
+                    src="https://www.youtube.com/embed/${v.youtubeId}?rel=0"
+                    title="${v.titulo}"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+          </div>
+          <!-- Info del video -->
+          <div class="flex justify-between items-start">
+            <h5 class="text-[11px] font-bold text-brand-blue leading-tight">${v.titulo}</h5>
+            <span class="text-[9px] font-mono bg-slate-100 px-1.5 py-0.5 border border-brand-border rounded-sm text-brand-muted shrink-0 ml-2">${v.duracion}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Alterna el estado de una actividad (checkbox)
+    function toggleActivity(key) {
+      const idx = state.completedAct.indexOf(key);
+      if (idx >= 0) {
+        state.completedAct.splice(idx, 1);
+      } else {
+        state.completedAct.push(key);
+      }
+      
+      // Guardar progreso en localStorage del estudiante
+      localStorage.setItem(`leibnitz_progress_${state.student.email}`, JSON.stringify(state.completedAct));
+      
+      // Actualizar listado global docente
+      saveOrUpdateDocenteList(state.student, state.completedAct.length);
+      
+      // Actualizar interfaz
+      updateDashboard();
+      
+      // Refrescar el contador y estado visual de las tarjetas sin repintar todo el DOM completo si es posible
+      // Pero por robustez, repintamos las tarjetas
+      renderEncounterActivities(state.activeTab);
+    }
+
+    // Recalcula y actualiza los indicadores del dashboard y estado de certificado
+    function updateDashboard() {
+      if (!state.student) return;
+      
+      const totalAct = 80;
+      const completedCount = state.completedAct.length;
+      const pct = Math.floor((completedCount / totalAct) * 100);
+      
+      // Actualizar textos
+      document.getElementById('dash-student-welcome').textContent = `¡Hola, ${state.student.nombre}!`;
+      document.getElementById('lbl-completadas').textContent = completedCount;
+      document.getElementById('lbl-porcentaje').textContent = `${pct}%`;
+      
+      // Actualizar barra
+      document.getElementById('bar-progreso').style.width = `${pct}%`;
+      
+      // Botón certificado
+      const btnCert = document.getElementById('btn-certificar');
+      if (pct >= 100) {
+        btnCert.disabled = false;
+        btnCert.className = "w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-orange text-white text-xs font-mono font-bold tracking-wider hover:bg-brand-blue transition-all cursor-pointer shadow-lg shadow-orange-500/20";
+      } else {
+        btnCert.disabled = true;
+        btnCert.className = "w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-200 text-slate-400 text-xs font-mono font-bold tracking-wider cursor-not-allowed transition-all shadow-lg shadow-slate-100";
+      }
+    }
+
+    // Ejecuta la lógica al iniciar la pestaña inicial
+    function updateDashboardInit() {
+      switchTab(1);
+    }
+    
+    // Sobrescribimos updateDashboard para que además cargue la pestaña al entrar
+    const baseUpdateDashboard = updateDashboard;
+    updateDashboard = function() {
+      baseUpdateDashboard();
+      if (state.completedAct && document.getElementById('cards-container').innerHTML === '') {
+        switchTab(1);
+      }
+    };
+
+
+    // ================= CERTIFICADO =================
+
+    // Abre la pantalla del certificado cargando datos dinámicos
+    function openCertificate() {
+      if (!state.student || state.completedAct.length < 80) return;
+      
+      // Cargar datos en diploma
+      document.getElementById('cert-student-name').textContent = `${state.student.nombre} ${state.student.apellido}`;
+      document.getElementById('cert-student-dni').textContent = formatDNI(state.student.dni);
+      
+      // Formatear fecha actual
+      const date = new Date();
+      const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ];
+      const fechaStr = `${date.getDate()} de ${meses[date.getMonth()]} de ${date.getFullYear()}`;
+      document.getElementById('cert-date').textContent = fechaStr;
+      
+      // Mostrar pantalla completa
+      document.getElementById('section-certificate-view').classList.remove('hidden');
+    }
+
+    // Cierra el visualizador de certificado
+    function closeCertificate() {
+      document.getElementById('section-certificate-view').classList.add('hidden');
+    }
+
+    // Auxiliar para formatear DNI con puntos para que sea más legible en diploma
+    function formatDNI(dniStr) {
+      const clean = dniStr.replace(/\D/g, "");
+      if (clean.length === 8) {
+        return clean.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3");
+      } else if (clean.length === 7) {
+        return clean.replace(/(\d{1})(\d{3})(\d{3})/, "$1.$2.$3");
+      }
+      return dniStr;
+    }
+
+
+    // ================= PANEL DOCENTE =================
+
+    // Abre el modal docente (solicita clave)
+    function openDocenteModal(e) {
+      e.preventDefault();
+      
+      const modal = document.getElementById('modal-docente');
+      const authBox = document.getElementById('docente-auth-box');
+      const reportBox = document.getElementById('docente-report-box');
+      const errorBox = document.getElementById('docente-auth-error');
+      
+      errorBox.classList.add('hidden');
+      document.getElementById('docente-key').value = '';
+      
+      modal.classList.remove('hidden');
+      
+      // Si ya está autenticado en la sesión, saltar directo al panel
+      if (sessionStorage.getItem('leibnitz_docente_logged') === 'true') {
+        authBox.classList.add('hidden');
+        reportBox.classList.remove('hidden');
+        loadDocenteTable();
+      } else {
+        authBox.classList.remove('hidden');
+        reportBox.classList.add('hidden');
+      }
+    }
+
+    // Cierra el modal docente
+    function closeDocenteModal() {
+      document.getElementById('modal-docente').classList.add('hidden');
+    }
+
+    // Valida la clave docente
+    function validateDocenteKey(e) {
+      e.preventDefault();
+      const keyInput = document.getElementById('docente-key').value;
+      const errorBox = document.getElementById('docente-auth-error');
+      
+      if (keyInput === '2228') {
+        sessionStorage.setItem('leibnitz_docente_logged', 'true');
+        
+        // Switch view
+        document.getElementById('docente-auth-box').classList.add('hidden');
+        document.getElementById('docente-report-box').classList.remove('hidden');
+        
+        loadDocenteTable();
+      } else {
+        errorBox.textContent = "Clave de validación incorrecta.";
+        errorBox.classList.remove('hidden');
+      }
+    }
+
+    // Carga los alumnos en la tabla de reportes del panel docente
+    function loadDocenteTable() {
+      const tableBody = document.getElementById('docente-table-body');
+      tableBody.innerHTML = '';
+      
+      const students = JSON.parse(localStorage.getItem('leibnitz_docente_students')) || [];
+      document.getElementById('docente-total-students').textContent = students.length;
+      
+      if (students.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-5 py-8 text-center text-brand-muted font-mono">
+              No hay alumnos registrados actualmente.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      students.forEach(s => {
+        // En localStorage guardamos s.porcentaje directamente, pero recalculamos por seguridad
+        const pct = s.porcentaje !== undefined ? s.porcentaje : 0;
+        const doneCount = s.completadasCount !== undefined ? s.completadasCount : 0;
+        
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-colors docente-row-student";
+        tr.dataset.search = `${s.nombre} ${s.apellido} ${s.dni} ${s.email}`.toLowerCase();
+        tr.dataset.nivel = s.nivel;
+        
+        tr.innerHTML = `
+          <td class="px-5 py-3.5 font-bold text-brand-blue">
+            ${s.apellido}, ${s.nombre}
+          </td>
+          <td class="px-5 py-3.5 font-mono text-brand-muted text-center">
+            ${s.dni}
+          </td>
+          <td class="px-5 py-3.5 font-mono text-brand-muted">
+            ${s.email}
+          </td>
+          <td class="px-5 py-3.5 text-center font-semibold text-slate-600">
+            ${s.nivel}
+          </td>
+          <td class="px-5 py-3.5">
+            <div class="flex flex-col items-center gap-1">
+              <div class="flex items-center justify-between w-24 text-[10px] font-mono text-brand-muted">
+                <span>${doneCount}/80</span>
+                <span class="font-bold text-brand-blue">${pct}%</span>
+              </div>
+              <div class="w-24 bg-slate-100 h-1.5 overflow-hidden">
+                <div class="bg-brand-orange h-full" style="width: ${pct}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td class="px-5 py-3.5 text-center text-estado">
+            ${pct >= 100 ? `
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-green-50 text-green-700 border border-green-200">
+                COMPLETADO
+              </span>
+            ` : `
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-mono font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                EN CURSO
+              </span>
+            `}
+          </td>
+          <td class="px-5 py-3.5 text-center">
+            ${pct >= 100 ? `
+              <button onclick="downloadCertificateAdmin('${s.nombre}', '${s.apellido}', '${s.dni}')" 
+                      class="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-blue hover:bg-brand-orange text-white text-[10px] font-mono font-bold transition-colors">
+                GENERAR
+              </button>
+            ` : `
+              <button onclick="downloadCertificateAdmin('${s.nombre}', '${s.apellido}', '${s.dni}')" 
+                      class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-500 hover:bg-brand-orange hover:text-white text-[10px] font-mono font-bold transition-colors"
+                      title="Acceso docente: permite descargar certificado incompleto">
+                FORZAR
+              </button>
+            `}
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Filtra la tabla docente por buscador de texto y nivel académico
+    function filterDocenteTable() {
+      const searchTerm = document.getElementById('docente-search').value.toLowerCase().trim();
+      const filterLevel = document.getElementById('docente-filter-level').value;
+      const rows = document.querySelectorAll('.docente-row-student');
+      
+      rows.forEach(row => {
+        const textMatch = row.dataset.search.includes(searchTerm);
+        const levelMatch = filterLevel === 'todos' || row.dataset.nivel === filterLevel;
+        
+        if (textMatch && levelMatch) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+    }
+
+    // Permite descargar el certificado de un alumno como administrador
+    function downloadCertificateAdmin(nombre, apellido, dni) {
+      // Cargamos temporalmente los datos en la vista de impresión
+      document.getElementById('cert-student-name').textContent = `${nombre} ${apellido}`;
+      document.getElementById('cert-student-dni').textContent = formatDNI(dni);
+      
+      const date = new Date();
+      const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ];
+      const fechaStr = `${date.getDate()} de ${meses[date.getMonth()]} de ${date.getFullYear()}`;
+      document.getElementById('cert-date').textContent = fechaStr;
+      
+      // Mostrar diploma
+      document.getElementById('section-certificate-view').classList.remove('hidden');
+    }
+
+    // Cierra la sesión del docente y vuelve a pedir contraseña
+    function clearDocenteSession() {
+      sessionStorage.removeItem('leibnitz_docente_logged');
+      document.getElementById('docente-auth-box').classList.remove('hidden');
+      document.getElementById('docente-report-box').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
